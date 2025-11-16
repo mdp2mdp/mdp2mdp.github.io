@@ -5,9 +5,8 @@ import { defineConfig } from "vite";
 
 const plugins = [react(), tailwindcss()];
 
-// For GitHub Pages, set base to repository name if deploying to username.github.io/repo-name
-// For username.github.io, leave base as '/'
-const base = process.env.GITHUB_PAGES === 'true' ? '/mega-service-group-landing/' : '/';
+// For username.github.io domain, base is always '/'
+const base = '/';
 
 export default defineConfig({
   plugins,
