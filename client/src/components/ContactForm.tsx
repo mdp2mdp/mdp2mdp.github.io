@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { AlertCircle, CheckCircle } from 'lucide-react';
-import { trpc } from '@/lib/trpc';
+
+const TELEGRAM_BOT_TOKEN = '7893195154:AAGQwvNqE0tVlGqRQfHhvhPwWJJPVRLGvXE';
+const TELEGRAM_CHAT_ID = '1234567890';
 
 export function ContactForm() {
   const [formData, setFormData] = useState({
@@ -15,8 +17,6 @@ export function ContactForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  const submitMutation = trpc.contact.submitForm.useMutation();
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -83,16 +83,33 @@ export function ContactForm() {
     setIsLoading(true);
 
     try {
-      const result = await submitMutation.mutateAsync({
-        name: formData.name,
-        company: formData.company,
-        phone: formData.phone,
-        email: formData.email,
-        message: formData.message,
-        consent: formData.consent,
+      // Send to Telegram
+      const message = `
+📝 <b>Новая заявка с сайта</b>
+
+👤 <b>Имя:</b> ${formData.name}
+🏢 <b>Компания:</b> ${formData.company}
+📞 <b>Телефон:</b> ${formData.phone}
+📧 <b>Email:</b> ${formData.email}
+💬 <b>Описание проекта:</b>
+${formData.message}
+
+⏰ <b>Время:</b> ${new Date().toLocaleString('ru-RU')}
+      `.trim();
+
+      const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          chat_id: TELEGRAM_CHAT_ID,
+          text: message,
+          parse_mode: 'HTML',
+        }),
       });
 
-      if (result.success) {
+      if (response.ok) {
         setSubmitted(true);
         setFormData({
           name: '',
@@ -106,6 +123,8 @@ export function ContactForm() {
         setTimeout(() => {
           setSubmitted(false);
         }, 3000);
+      } else {
+        console.error('Failed to send message to Telegram');
       }
     } catch (error) {
       console.error('Form submission error:', error);
