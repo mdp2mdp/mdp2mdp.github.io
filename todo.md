@@ -1,4 +1,4 @@
-#  Мега-Сервис-Групп Landing Page - TODO
+# Мега-Сервис-Групп Landing Page - TODO
 
 ## Design System & Layout
 - [x] Set up Tailwind CSS with custom color palette (gray/beige background, black text, dark blue accents)
